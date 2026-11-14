@@ -3,7 +3,7 @@ services:
   # Backend Express API Web Service
   # ----------------------------------------------------------------------------
   - type: web
-    name: smart-career-coach-api
+    name: careerpilot-api
     runtime: node
     rootDir: server/server
     plan: free
@@ -22,19 +22,19 @@ services:
       - key: CLIENT_URL
         fromService:
           type: web
-          name: smart-career-coach-client
+          name: careerpilot
           property: host
       - key: FRONTEND_URL
         fromService:
           type: web
-          name: smart-career-coach-client
+          name: careerpilot
           property: host
 
   # ----------------------------------------------------------------------------
   # Frontend React + Vite Static Site
   # ----------------------------------------------------------------------------
   - type: web
-    name: smart-career-coach-client
+    name: careerpilot
     runtime: static
     rootDir: client/client
     plan: free
@@ -48,5 +48,5 @@ services:
       - key: VITE_API_URL
         fromService:
           type: web
-          name: smart-career-coach-api
+          name: careerpilot-api
           property: host

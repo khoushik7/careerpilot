@@ -1,7 +1,7 @@
 {
-  "name": "smart-career-coach-platform",
+  "name": "careerpilot-platform",
   "version": "1.0.0",
-  "description": "Smart Career Coach - AI-Powered Mock Interview & Placement Preparation Platform",
+  "description": "CareerPilot - AI-Powered Mock Interview & Placement Preparation Platform",
   "scripts": {
     "server": "cd server/server && npm start",
     "client": "cd client/client && npm run dev",

@@ -1,7 +1,7 @@
 {
-  "name": "smart-career-coach-server",
+  "name": "careerpilot-server",
   "version": "1.0.0",
-  "description": "Backend API for Smart Career Coach AI Placement Platform",
+  "description": "Backend API for CareerPilot AI Placement Platform",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",

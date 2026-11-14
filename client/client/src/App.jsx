@@ -49,7 +49,7 @@ function AppShell({ children }) {
       </main>
       <DogAIAssistant />
       <footer className="border-t border-slate-200 dark:border-slate-800 py-6 text-center text-xs text-slate-500 dark:text-slate-400">
-        <p>🎓 Smart Career Coach — AI-Powered Mock Interview &amp; Placement Preparation Platform</p>
+        <p>🎓 CareerPilot — AI-Powered Mock Interview &amp; Placement Preparation Platform</p>
       </footer>
     </div>
   );

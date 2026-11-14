@@ -258,7 +258,7 @@ export default function MockInterview() {
     const doc = new jsPDF();
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(18);
-    doc.text('Smart Career Coach - AI Mock Interview Report', 15, 20);
+    doc.text('CareerPilot - AI Mock Interview Report', 15, 20);
 
     doc.setFontSize(11);
     doc.setFont('helvetica', 'normal');

@@ -76,7 +76,7 @@ export default function AuthModal({ isOpen, onClose }) {
           <p className="text-xs text-blue-100 mt-1">
             {isForgot
               ? 'Enter your email to receive a recovery link'
-              : 'Smart Career Coach AI Placement Platform'}
+              : 'CareerPilot AI Placement Platform'}
           </p>
         </div>
 

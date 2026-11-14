@@ -660,7 +660,7 @@ export default function DogAIAssistant() {
           <div className="flex-shrink-0 px-4 py-3 bg-slate-50 dark:bg-slate-950/80
                           border-t border-slate-100 dark:border-slate-800
                           flex items-center justify-between text-[10px] text-slate-400">
-            <span>🐶 Noah AI Companion • Smart Career Coach</span>
+            <span>🐶 Noah AI Companion • CareerPilot</span>
             {treatCount >= 5 && (
               <span className="font-bold text-amber-600 dark:text-amber-400 animate-pulse">
                 🦴 Noah loves you!

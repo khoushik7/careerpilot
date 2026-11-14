@@ -202,12 +202,12 @@ const forgotPassword = async (req, res) => {
     }
 
     const mailOptions = {
-      from: `"Smart Career Coach" <${process.env.EMAIL_USER}>`,
+      from: `"CareerPilot" <${process.env.EMAIL_USER}>`,
       to: user.email,
       subject: 'Password Reset Request',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 540px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 12px; background: #ffffff;">
-          <h2 style="color: #4f46e5; margin-bottom: 8px;">Smart Career Coach</h2>
+          <h2 style="color: #4f46e5; margin-bottom: 8px;">CareerPilot</h2>
           <p style="color: #334155; font-size: 15px;">Hello ${user.name || 'there'},</p>
           <p style="color: #334155; font-size: 14px; line-height: 1.5;">You recently requested to reset the password for your account. Click the button below to proceed:</p>
           <div style="margin: 24px 0;">

@@ -128,7 +128,7 @@ export default function LoginPage() {
             <GraduationCap className="w-6 h-6 text-white" />
           </div>
           <div>
-            <span className="font-extrabold text-xl text-white">Smart Career Coach</span>
+            <span className="font-extrabold text-xl text-white">CareerPilot</span>
             <span className="block text-[10px] font-medium text-indigo-300 uppercase tracking-widest">AI Placement Platform</span>
           </div>
         </div>
@@ -186,7 +186,7 @@ export default function LoginPage() {
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center">
               <GraduationCap className="w-5 h-5 text-white" />
             </div>
-            <span className="font-extrabold text-lg text-white">Smart Career Coach</span>
+            <span className="font-extrabold text-lg text-white">CareerPilot</span>
           </div>
 
           {/* Card */}
@@ -206,7 +206,7 @@ export default function LoginPage() {
                 {isForgot
                   ? "Enter your email and we'll send you a reset link"
                   : isRegister
-                  ? 'Join Smart Career Coach today'
+                  ? 'Join CareerPilot today'
                   : 'Login to continue your placement journey'}
               </p>
             </div>

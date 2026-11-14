@@ -59,7 +59,7 @@ export default function Navbar() {
               </div>
               <div>
                 <span className="font-extrabold text-xl bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent">
-                  Smart Career Coach
+                  CareerPilot
                 </span>
                 <span className="hidden sm:block text-[10px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-widest -mt-1">
                   AI Placement Platform

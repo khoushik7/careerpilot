@@ -89,8 +89,8 @@ app.get('/api/health', (req, res) => {
   res.status(isHealthy ? 200 : 503).json({
     status: isHealthy ? 'OK' : 'DEGRADED',
     message: isHealthy 
-      ? 'Smart Career Coach API & Database are operational.' 
-      : 'Smart Career Coach API is running, but database connection is not active.',
+      ? 'CareerPilot API & Database are operational.' 
+      : 'CareerPilot API is running, but database connection is not active.',
     environment: process.env.NODE_ENV || 'development',
     server: {
       uptimeSeconds: Math.round(process.uptime()),
@@ -137,7 +137,7 @@ const startServer = async () => {
 
     const server = app.listen(PORT, HOST, () => {
       console.log(`\n========================================================================`);
-      console.log(`🚀 SMART CAREER COACH BACKEND ONLINE ON ${HOST}:${PORT}`);
+      console.log(`🚀 CAREERPILOT BACKEND ONLINE ON ${HOST}:${PORT}`);
       console.log(`📡 Health Check: http://localhost:${PORT}/api/health`);
       console.log(`🐶 Noah / Barkley AI Companion Online & Logging Actions`);
       console.log(`⚡ Ready for User Actions: Login, Tests, Mock Interviews, Resumes`);
