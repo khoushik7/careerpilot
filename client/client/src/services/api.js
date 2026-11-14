@@ -1,7 +1,10 @@
 /**
  * Central API Client for Smart Career Coach
+ * Supports production public backend URL via VITE_API_URL or local Vite proxy fallback (/api)
  */
-const API_BASE = '/api';
+const rawBaseURL = import.meta.env.VITE_API_URL || '';
+const cleanBaseURL = rawBaseURL.trim().replace(/\/+$/, '');
+export const API_BASE = cleanBaseURL ? `${cleanBaseURL}/api` : '/api';
 
 export async function apiRequest(endpoint, method = 'GET', body = null, isFormData = false) {
   const token = localStorage.getItem('token');
@@ -24,7 +27,15 @@ export async function apiRequest(endpoint, method = 'GET', body = null, isFormDa
     options.body = isFormData ? body : JSON.stringify(body);
   }
 
-  const response = await fetch(`${API_BASE}${endpoint}`, options);
+  const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  const targetUrl = `${API_BASE}${normalizedEndpoint}`;
+
+  let response;
+  try {
+    response = await fetch(targetUrl, options);
+  } catch (netErr) {
+    throw new Error(`Unable to reach the server at ${targetUrl}. Please ensure the backend is running and online.`);
+  }
 
   let data;
   const contentType = response.headers.get('content-type');
@@ -46,7 +57,9 @@ export async function apiRequest(endpoint, method = 'GET', body = null, isFormDa
   if (!response.ok) {
     const errorMsg = (data && data.error) 
       ? data.error 
-      : `Server request failed with status ${response.status} (${response.statusText || 'Backend server may be offline'})`;
+      : (data && data.message)
+      ? data.message
+      : `Server request failed with status ${response.status} (${response.statusText || 'Backend server error'})`;
     throw new Error(errorMsg);
   }
 

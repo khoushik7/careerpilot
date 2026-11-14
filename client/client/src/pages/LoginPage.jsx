@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { apiRequest } from '../services/api';
 import {
   GraduationCap, Mail, Lock, User, Eye, EyeOff,
   Sparkles, ArrowRight, CheckCircle2, ArrowLeft
@@ -60,18 +61,12 @@ export default function LoginPage() {
           return;
         }
 
-        // Fixed: calls forgotPassword directly to trigger /api/auth/forgot-password
+        // calls forgotPassword from AuthContext with apiRequest fallback
         let responseData;
         if (typeof forgotPassword === 'function') {
           responseData = await forgotPassword(email.trim());
         } else {
-          const res = await fetch('/api/auth/forgot-password', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: email.trim() }),
-          });
-          responseData = await res.json();
-          if (!res.ok) throw new Error(responseData.error || responseData.message || 'Failed to send reset link.');
+          responseData = await apiRequest('/auth/forgot-password', 'POST', { email: email.trim() });
         }
 
         setDogMood('excited');

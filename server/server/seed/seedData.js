@@ -8,44 +8,60 @@ const seedAll = async () => {
   try {
     await connectDB();
 
-    console.log('Clearing existing data...');
-    await User.deleteMany({});
-    await Question.deleteMany({});
+    // Idempotent seeding: do not wipe existing production data
+    const existingStudent = await User.findOne({ email: 'student@smartcareer.com' });
+    const existingAdmin = await User.findOne({ email: 'admin@smartcareer.com' });
 
-    console.log('Seeding demo users...');
-    const salt = await bcrypt.genSalt(10);
-    const studentPassword = await bcrypt.hash('student123', salt);
-    const adminPassword = await bcrypt.hash('admin123', salt);
+    if (!existingStudent || !existingAdmin) {
+      console.log('Seeding demo accounts...');
+      const salt = await bcrypt.genSalt(10);
 
-    const studentUser = await User.create({
-      name: 'Alex Johnson',
-      email: 'student@smartcareer.com',
-      password: studentPassword,
-      role: 'student',
-      college: 'National Institute of Technology',
-      degree: 'B.Tech Computer Science',
-      graduationYear: 2026,
-      targetRole: 'Full Stack Engineer',
-      skills: ['Java', 'React', 'Data Structures', 'SQL'],
-      placementReadinessScore: 78,
-      totalInterviews: 4,
-      avgHrScore: 82,
-      avgTechScore: 76,
-      avgAptitudeScore: 80,
-      avgCommunicationScore: 75,
-      dailyStreak: 5
-    });
+      if (!existingStudent) {
+        const studentPassword = await bcrypt.hash('student123', salt);
+        await User.create({
+          name: 'Alex Johnson',
+          email: 'student@smartcareer.com',
+          password: studentPassword,
+          role: 'student',
+          college: 'National Institute of Technology',
+          degree: 'B.Tech Computer Science',
+          graduationYear: 2026,
+          targetRole: 'Full Stack Engineer',
+          skills: ['Java', 'React', 'Data Structures', 'SQL'],
+          placementReadinessScore: 78,
+          totalInterviews: 4,
+          avgHrScore: 82,
+          avgTechScore: 76,
+          avgAptitudeScore: 80,
+          avgCommunicationScore: 75,
+          dailyStreak: 5
+        });
+        console.log('[SEED] ✅ Demo student account seeded: student@smartcareer.com');
+      }
 
-    const adminUser = await User.create({
-      name: 'Dr. Sarah Connor (Placement Head)',
-      email: 'admin@smartcareer.com',
-      password: adminPassword,
-      role: 'admin',
-      college: 'Smart Placement Office',
-      degree: 'M.Tech, Ph.D CS',
-      graduationYear: 2018,
-      targetRole: 'Placement Officer'
-    });
+      if (!existingAdmin) {
+        const adminPassword = await bcrypt.hash('admin123', salt);
+        await User.create({
+          name: 'Dr. Sarah Connor (Placement Head)',
+          email: 'admin@smartcareer.com',
+          password: adminPassword,
+          role: 'admin',
+          college: 'Smart Placement Office',
+          degree: 'M.Tech, Ph.D CS',
+          graduationYear: 2018,
+          targetRole: 'Placement Officer'
+        });
+        console.log('[SEED] ✅ Demo admin account seeded: admin@smartcareer.com');
+      }
+    } else {
+      console.log('[SEED] ℹ️ Demo accounts already present in database.');
+    }
+
+    const questionCount = await Question.countDocuments();
+    if (questionCount > 0) {
+      console.log(`[SEED] ℹ️ Database already populated with ${questionCount} questions. Preserving existing questions.`);
+      return;
+    }
 
     console.log('Seeding HR Questions...');
     const hrQuestions = [

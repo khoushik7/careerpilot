@@ -26,6 +26,12 @@ const analyzeResume = async (req, res) => {
       return res.status(400).json({ error: 'Please upload a PDF resume file or provide text content.' });
     }
 
+    if (!extractedText || !extractedText.trim()) {
+      return res.status(400).json({ 
+        error: 'Unable to extract text from the uploaded document. If this is a scanned PDF image, please paste your resume text directly.' 
+      });
+    }
+
     const targetRole = req.body.targetRole || 'Software Engineer';
     const analysis = analyzeResumeText(extractedText, targetRole);
 

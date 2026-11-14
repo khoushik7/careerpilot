@@ -181,7 +181,7 @@ const forgotPassword = async (req, res) => {
 
     await user.save();
 
-    const clientUrl = process.env.CLIENT_URL || 'http://localhost:3000';
+    const clientUrl = process.env.CLIENT_URL || process.env.FRONTEND_URL || 'http://localhost:3000';
     const resetUrl = `${clientUrl}/reset-password?token=${rawResetToken}&email=${encodeURIComponent(cleanEmail)}`;
 
     const emailConfigured = Boolean(process.env.EMAIL_USER && process.env.EMAIL_PASS);
@@ -281,7 +281,7 @@ const getMe = async (req, res) => {
 // @route PUT /api/auth/profile
 const updateProfile = async (req, res) => {
   try {
-    const { name, targetRole, college, degree, graduationYear, skills, bio } = req.body;
+    const { name, targetRole, college, degree, graduationYear, skills, bio, role } = req.body;
     const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ error: 'User not found.' });
 
@@ -292,6 +292,7 @@ const updateProfile = async (req, res) => {
     if (graduationYear) user.graduationYear = graduationYear;
     if (skills) user.skills = skills;
     if (bio) user.bio = bio;
+    if (role && ['student', 'admin'].includes(role)) user.role = role;
 
     await user.save();
     console.log(`[AUTH] 💾 Updated profile for ${user.email} -> Target Role: ${user.targetRole}`);

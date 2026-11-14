@@ -3,6 +3,7 @@ dotenv.config();
 
 const express = require('express');
 const cors = require('cors');
+const mongoose = require('mongoose');
 const connectDB = require('./config/db');
 const seedAll = require('./seed/seedData');
 
@@ -17,9 +18,45 @@ const assistantRoutes = require('./routes/assistantRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const HOST = process.env.HOST || '0.0.0.0';
+
+// Determine allowed origins for CORS
+const clientOrigins = [
+  process.env.CLIENT_URL,
+  process.env.FRONTEND_URL,
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'http://127.0.0.1:3000',
+  'http://127.0.0.1:5173'
+].filter(Boolean).map(url => url.trim().replace(/\/+$/, ''));
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow non-browser requests (e.g. mobile apps, curl, server-to-server)
+    if (!origin) return callback(null, true);
+
+    const cleanOrigin = origin.replace(/\/+$/, '');
+    // Allow configured origins, all Render subdomains, and dev environments
+    if (
+      process.env.NODE_ENV !== 'production' ||
+      clientOrigins.includes(cleanOrigin) ||
+      cleanOrigin.endsWith('.onrender.com') ||
+      cleanOrigin.includes('localhost') ||
+      cleanOrigin.includes('127.0.0.1')
+    ) {
+      return callback(null, true);
+    }
+
+    // Default permissive return with warning to avoid breaking public access
+    console.warn(`[CORS] Request received from origin: ${origin}`);
+    return callback(null, true);
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
@@ -38,9 +75,33 @@ app.use((req, res, next) => {
   next();
 });
 
-// Health Check API
+// Health Check API - Returns server & MongoDB connection status
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', message: 'Smart Career Coach API is running smooth!', timestamp: new Date() });
+  const readyStates = {
+    0: 'disconnected',
+    1: 'connected',
+    2: 'connecting',
+    3: 'disconnecting'
+  };
+  const dbState = readyStates[mongoose.connection.readyState] || 'unknown';
+  const isHealthy = mongoose.connection.readyState === 1;
+
+  res.status(isHealthy ? 200 : 503).json({
+    status: isHealthy ? 'OK' : 'DEGRADED',
+    message: isHealthy 
+      ? 'Smart Career Coach API & Database are operational.' 
+      : 'Smart Career Coach API is running, but database connection is not active.',
+    environment: process.env.NODE_ENV || 'development',
+    server: {
+      uptimeSeconds: Math.round(process.uptime()),
+      timestamp: new Date().toISOString()
+    },
+    database: {
+      status: dbState,
+      connected: isHealthy,
+      name: mongoose.connection.name || 'none'
+    }
+  });
 });
 
 // Mounting API Routes
@@ -55,7 +116,11 @@ app.use('/api/assistant', assistantRoutes);
 // Error Handling Middleware
 app.use((err, req, res, next) => {
   console.error('[SERVER] ❌ Unhandled error:', err.stack);
-  res.status(500).json({ error: 'Internal server error', details: err.message });
+  const isProd = process.env.NODE_ENV === 'production';
+  res.status(err.status || 500).json({
+    error: isProd ? 'Internal server error' : err.message,
+    ...(isProd ? {} : { stack: err.stack })
+  });
 });
 
 // Initialize DB and Start Server
@@ -63,35 +128,25 @@ const startServer = async () => {
   try {
     await connectDB();
     
-    // Run seed check for both questions and users
-    const Question = require('./models/Question');
-    const User = require('./models/User');
-
-    const [qCount, uCount] = await Promise.all([
-      Question.countDocuments(),
-      User.countDocuments()
-    ]);
-
-    if (qCount === 0 || uCount === 0) {
-      console.log('[DATABASE] 🔄 Seeding questions & default demo accounts (student@smartcareer.com / admin@smartcareer.com)...');
+    // Seed check: ensure demo accounts and default question bank exist
+    try {
       await seedAll();
-      console.log('[DATABASE] ✅ Seeding complete!');
-    } else {
-      console.log(`[DATABASE] 📊 Database initialized with ${qCount} questions and ${uCount} user records.`);
+    } catch (seedErr) {
+      console.warn('[DATABASE] ⚠️ Seed notice:', seedErr.message);
     }
 
-    const server = app.listen(PORT, () => {
+    const server = app.listen(PORT, HOST, () => {
       console.log(`\n========================================================================`);
-      console.log(`🚀 SMART CAREER COACH BACKEND ONLINE ON PORT ${PORT}`);
-      console.log(`📡 API Base URL: http://localhost:${PORT}/api`);
-      console.log(`🐶 Barkley AI Companion Connected & Logging Actions`);
+      console.log(`🚀 SMART CAREER COACH BACKEND ONLINE ON ${HOST}:${PORT}`);
+      console.log(`📡 Health Check: http://localhost:${PORT}/api/health`);
+      console.log(`🐶 Noah / Barkley AI Companion Online & Logging Actions`);
       console.log(`⚡ Ready for User Actions: Login, Tests, Mock Interviews, Resumes`);
       console.log(`========================================================================\n`);
     });
 
     server.on('error', (err) => {
       if (err.code === 'EADDRINUSE') {
-        console.error(`[SERVER] ❌ Port ${PORT} is already in use. The API may already be running. Stop the other server or set PORT to an unused port, then try again.`);
+        console.error(`[SERVER] ❌ Port ${PORT} is already in use. Stop the existing process or specify another PORT.`);
       } else {
         console.error('[SERVER] ❌ Failed to start HTTP server:', err);
       }
