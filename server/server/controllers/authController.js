@@ -35,7 +35,7 @@ const generateToken = (userId, role) => {
 // @route POST /api/auth/register
 const register = async (req, res) => {
   try {
-    const { name, email, password, role, college, degree, graduationYear, targetRole } = req.body;
+    const { name, email, password, college, degree, graduationYear, targetRole } = req.body;
     
     if (!name || !email || !password) {
       return res.status(400).json({ error: 'Name, email, and password are required.' });
@@ -54,7 +54,7 @@ const register = async (req, res) => {
       name: name.trim(),
       email: cleanEmail,
       password: hashedPassword,
-      role: role || 'student',
+      role: 'student',
       college: college || 'Engineering Institute',
       degree: degree || 'B.Tech CS',
       graduationYear: graduationYear || 2026,
@@ -267,7 +267,7 @@ const resetPassword = async (req, res) => {
 // @route GET /api/auth/me
 const getMe = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select('-password');
+    const user = await User.findById(req.user.id).select('-password -resetPasswordToken -resetPasswordExpires');
     if (!user) {
       return res.status(404).json({ error: 'User not found.' });
     }
@@ -281,7 +281,7 @@ const getMe = async (req, res) => {
 // @route PUT /api/auth/profile
 const updateProfile = async (req, res) => {
   try {
-    const { name, targetRole, college, degree, graduationYear, skills, bio, role } = req.body;
+    const { name, targetRole, college, degree, graduationYear, skills, bio } = req.body;
     const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ error: 'User not found.' });
 
@@ -292,12 +292,15 @@ const updateProfile = async (req, res) => {
     if (graduationYear) user.graduationYear = graduationYear;
     if (skills) user.skills = skills;
     if (bio) user.bio = bio;
-    if (role && ['student', 'admin'].includes(role)) user.role = role;
-
     await user.save();
     console.log(`[AUTH] 💾 Updated profile for ${user.email} -> Target Role: ${user.targetRole}`);
 
-    res.json({ message: 'Profile updated successfully.', user });
+    const safeUser = user.toObject();
+    delete safeUser.password;
+    delete safeUser.resetPasswordToken;
+    delete safeUser.resetPasswordExpires;
+
+    res.json({ message: 'Profile updated successfully.', user: safeUser });
   } catch (err) {
     console.error('[AUTH] Profile update error:', err);
     res.status(500).json({ error: 'Failed to update profile.' });

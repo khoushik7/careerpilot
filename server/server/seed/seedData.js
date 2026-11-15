@@ -8,53 +8,77 @@ const seedAll = async () => {
   try {
     await connectDB();
 
-    // Idempotent seeding: do not wipe existing production data
-    const existingStudent = await User.findOne({ email: 'student@smartcareer.com' });
-    const existingAdmin = await User.findOne({ email: 'admin@smartcareer.com' });
+    if (process.env.NODE_ENV !== 'production') {
+      const existingStudent = await User.findOne({ email: 'student@smartcareer.com' });
+      const existingAdmin = await User.findOne({ email: 'admin@smartcareer.com' });
 
-    if (!existingStudent || !existingAdmin) {
-      console.log('Seeding demo accounts...');
-      const salt = await bcrypt.genSalt(10);
+      if (!existingStudent || !existingAdmin) {
+        console.log('Seeding demo accounts...');
+        const salt = await bcrypt.genSalt(10);
 
-      if (!existingStudent) {
-        const studentPassword = await bcrypt.hash('student123', salt);
-        await User.create({
-          name: 'Alex Johnson',
-          email: 'student@smartcareer.com',
-          password: studentPassword,
-          role: 'student',
-          college: 'National Institute of Technology',
-          degree: 'B.Tech Computer Science',
-          graduationYear: 2026,
-          targetRole: 'Full Stack Engineer',
-          skills: ['Java', 'React', 'Data Structures', 'SQL'],
-          placementReadinessScore: 78,
-          totalInterviews: 4,
-          avgHrScore: 82,
-          avgTechScore: 76,
-          avgAptitudeScore: 80,
-          avgCommunicationScore: 75,
-          dailyStreak: 5
-        });
-        console.log('[SEED] ✅ Demo student account seeded: student@smartcareer.com');
-      }
+        if (!existingStudent) {
+          const studentPassword = await bcrypt.hash('student123', salt);
+          await User.create({
+            name: 'Alex Johnson',
+            email: 'student@smartcareer.com',
+            password: studentPassword,
+            role: 'student',
+            college: 'National Institute of Technology',
+            degree: 'B.Tech Computer Science',
+            graduationYear: 2026,
+            targetRole: 'Full Stack Engineer',
+            skills: ['Java', 'React', 'Data Structures', 'SQL'],
+            placementReadinessScore: 78,
+            totalInterviews: 4,
+            avgHrScore: 82,
+            avgTechScore: 76,
+            avgAptitudeScore: 80,
+            avgCommunicationScore: 75,
+            dailyStreak: 5
+          });
+          console.log('[SEED] ✅ Demo student account seeded: student@smartcareer.com');
+        }
 
-      if (!existingAdmin) {
-        const adminPassword = await bcrypt.hash('admin123', salt);
-        await User.create({
-          name: 'Dr. Sarah Connor (Placement Head)',
-          email: 'admin@smartcareer.com',
-          password: adminPassword,
-          role: 'admin',
-          college: 'Smart Placement Office',
-          degree: 'M.Tech, Ph.D CS',
-          graduationYear: 2018,
-          targetRole: 'Placement Officer'
-        });
-        console.log('[SEED] ✅ Demo admin account seeded: admin@smartcareer.com');
+        if (!existingAdmin) {
+          const adminPassword = await bcrypt.hash('admin123', salt);
+          await User.create({
+            name: 'Dr. Sarah Connor (Placement Head)',
+            email: 'admin@smartcareer.com',
+            password: adminPassword,
+            role: 'admin',
+            college: 'Smart Placement Office',
+            degree: 'M.Tech, Ph.D CS',
+            graduationYear: 2018,
+            targetRole: 'Placement Officer'
+          });
+          console.log('[SEED] ✅ Demo admin account seeded: admin@smartcareer.com');
+        }
+      } else {
+        console.log('[SEED] ℹ️ Demo accounts already present in database.');
       }
     } else {
-      console.log('[SEED] ℹ️ Demo accounts already present in database.');
+      const adminEmail = (process.env.ADMIN_EMAIL || '').trim().toLowerCase();
+      const adminPassword = process.env.ADMIN_PASSWORD;
+
+      if (!adminEmail || !adminPassword) {
+        console.warn('[SEED] Production admin not provisioned. Set ADMIN_EMAIL and ADMIN_PASSWORD.');
+      } else {
+        const existingAdmin = await User.findOne({ email: adminEmail });
+
+        if (!existingAdmin) {
+          const salt = await bcrypt.genSalt(10);
+          const hashedPassword = await bcrypt.hash(adminPassword, salt);
+          await User.create({
+            name: 'CareerPilot Administrator',
+            email: adminEmail,
+            password: hashedPassword,
+            role: 'admin'
+          });
+          console.log(`[SEED] ✅ Production admin account created for ${adminEmail}.`);
+        } else if (existingAdmin.role !== 'admin') {
+          console.warn(`[SEED] Production admin email ${adminEmail} belongs to a non-admin account.`);
+        }
+      }
     }
 
     const questionCount = await Question.countDocuments();
@@ -458,9 +482,11 @@ const seedAll = async () => {
     await Question.insertMany(companyQuestions);
 
     console.log('Seed database completed successfully!');
-    console.log('Demo Credentials:');
-    console.log('Student: student@smartcareer.com / student123');
-    console.log('Admin:   admin@smartcareer.com   / admin123');
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('Demo Credentials:');
+      console.log('Student: student@smartcareer.com / student123');
+      console.log('Admin:   admin@smartcareer.com   / admin123');
+    }
   } catch (err) {
     console.error('Seeding error:', err);
   }

@@ -328,7 +328,6 @@ export default function LoginPage() {
                                  text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                       <option value="student">Student</option>
-                      <option value="admin">Admin</option>
                     </select>
                   </div>
                   <div>

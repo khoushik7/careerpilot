@@ -172,7 +172,6 @@ export default function AuthModal({ isOpen, onClose }) {
                   className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
                 >
                   <option value="student">Student</option>
-                  <option value="admin">Admin</option>
                 </select>
               </div>
               <div>

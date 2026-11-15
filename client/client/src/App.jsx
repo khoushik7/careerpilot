@@ -3,18 +3,19 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import Navbar from './components/Navbar';
-import LoginPage from './pages/LoginPage';
-import ResetPasswordPage from './pages/ResetPasswordPage';
-import Dashboard from './pages/Dashboard';
-import MockInterview from './pages/MockInterview';
-import TechnicalPrep from './pages/TechnicalPrep';
-import AptitudePrep from './pages/AptitudePrep';
-import ResumeAnalyzer from './pages/ResumeAnalyzer';
-import CompanyPrep from './pages/CompanyPrep';
-import Leaderboard from './pages/Leaderboard';
-import DailyChallenge from './pages/DailyChallenge';
-import AdminDashboard from './pages/AdminDashboard';
 import DogAIAssistant from './components/DogAIAssistant';
+
+const LoginPage = React.lazy(() => import('./pages/LoginPage'));
+const ResetPasswordPage = React.lazy(() => import('./pages/ResetPasswordPage'));
+const Dashboard = React.lazy(() => import('./pages/Dashboard'));
+const MockInterview = React.lazy(() => import('./pages/MockInterview'));
+const TechnicalPrep = React.lazy(() => import('./pages/TechnicalPrep'));
+const AptitudePrep = React.lazy(() => import('./pages/AptitudePrep'));
+const ResumeAnalyzer = React.lazy(() => import('./pages/ResumeAnalyzer'));
+const CompanyPrep = React.lazy(() => import('./pages/CompanyPrep'));
+const Leaderboard = React.lazy(() => import('./pages/Leaderboard'));
+const DailyChallenge = React.lazy(() => import('./pages/DailyChallenge'));
+const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard'));
 
 /* ── Guards ──────────────────────────────────────────────────────────── */
 
@@ -61,90 +62,99 @@ export default function App() {
     <ThemeProvider>
       <AuthProvider>
         <Router>
-          <Routes>
+          <React.Suspense
+            fallback={
+              <div
+                className="min-h-screen flex items-center justify-center bg-slate-50 text-sm text-slate-500 dark:bg-slate-950 dark:text-slate-400"
+                role="status"
+              >
+                Loading page...
+              </div>
+            }
+          >
+            <Routes>
+              {/* Public routes */}
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/reset-password" element={<ResetPasswordPage />} />
 
-            {/* Public routes */}
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/reset-password" element={<ResetPasswordPage />} />
+              {/* Protected routes — wrapped in AppShell */}
+              <Route
+                path="/"
+                element={
+                  <ProtectedRoute>
+                    <AppShell><Dashboard /></AppShell>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/mock-interview"
+                element={
+                  <ProtectedRoute>
+                    <AppShell><MockInterview /></AppShell>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/technical-prep"
+                element={
+                  <ProtectedRoute>
+                    <AppShell><TechnicalPrep /></AppShell>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/aptitude-prep"
+                element={
+                  <ProtectedRoute>
+                    <AppShell><AptitudePrep /></AppShell>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/resume-analyzer"
+                element={
+                  <ProtectedRoute>
+                    <AppShell><ResumeAnalyzer /></AppShell>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/company-prep"
+                element={
+                  <ProtectedRoute>
+                    <AppShell><CompanyPrep /></AppShell>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/leaderboard"
+                element={
+                  <ProtectedRoute>
+                    <AppShell><Leaderboard /></AppShell>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/daily-challenge"
+                element={
+                  <ProtectedRoute>
+                    <AppShell><DailyChallenge /></AppShell>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedAdminRoute>
+                    <AppShell><AdminDashboard /></AppShell>
+                  </ProtectedAdminRoute>
+                }
+              />
 
-            {/* Protected routes — wrapped in AppShell */}
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute>
-                  <AppShell><Dashboard /></AppShell>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/mock-interview"
-              element={
-                <ProtectedRoute>
-                  <AppShell><MockInterview /></AppShell>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/technical-prep"
-              element={
-                <ProtectedRoute>
-                  <AppShell><TechnicalPrep /></AppShell>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/aptitude-prep"
-              element={
-                <ProtectedRoute>
-                  <AppShell><AptitudePrep /></AppShell>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/resume-analyzer"
-              element={
-                <ProtectedRoute>
-                  <AppShell><ResumeAnalyzer /></AppShell>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/company-prep"
-              element={
-                <ProtectedRoute>
-                  <AppShell><CompanyPrep /></AppShell>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/leaderboard"
-              element={
-                <ProtectedRoute>
-                  <AppShell><Leaderboard /></AppShell>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/daily-challenge"
-              element={
-                <ProtectedRoute>
-                  <AppShell><DailyChallenge /></AppShell>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin"
-              element={
-                <ProtectedAdminRoute>
-                  <AppShell><AdminDashboard /></AppShell>
-                </ProtectedAdminRoute>
-              }
-            />
-
-            {/* Catch-all — redirect to dashboard (or login if not authed) */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-
-          </Routes>
+              {/* Catch-all — redirect to dashboard (or login if not authed) */}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </React.Suspense>
         </Router>
       </AuthProvider>
     </ThemeProvider>

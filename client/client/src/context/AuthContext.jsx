@@ -71,18 +71,6 @@ export function AuthProvider({ children }) {
     setUser(prev => ({ ...prev, ...updatedFields }));
   };
 
-  const switchRole = async (targetRole) => {
-    const newRole = targetRole || (user?.role === 'admin' ? 'student' : 'admin');
-    if (user) {
-      setUser(prev => ({ ...prev, role: newRole }));
-      try {
-        await apiRequest('/auth/profile', 'PUT', { role: newRole });
-      } catch (err) {
-        console.warn('Role switch persistence note:', err.message);
-      }
-    }
-  };
-
   return (
     <AuthContext.Provider
       value={{
@@ -95,7 +83,6 @@ export function AuthProvider({ children }) {
         forgotPassword,
         resetPassword,
         updateUserData,
-        switchRole,
       }}
     >
       {children}
