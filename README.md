@@ -1,4 +1,4 @@
-# smartcarrercoach
+# CareerPilot
 
 ## Production deployment
 
